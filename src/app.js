@@ -1,21 +1,18 @@
 const express = require("express");
-const {AdminAuth,UserAuth}=require("/data/DEVTINDER/middlewares/auth");
+
 const app = express();
 
-app.get("/admin/getallData", AdminAuth,(req, res) => {
-  res.send("Data sent");
-});
-app.get("/admin/Deleteuser",AdminAuth, (req, res) => {
-  res.send("Deleted a user");
-});
-app.get("/user/login",(req,res)=>
+
+app.get("/user",(req,res)=>
 {
-  res.send("User Logined Sucessfully");
+  throw new Error("something went wrong!");
+ res.send("User Api called sucessfully");
 });
-app.get("/user/data",UserAuth,(req,res)=>
-  {
-    res.send("User Data Sent");
-  });
+app.use("/",(err,req,res,next)=>
+{
+  if(err)
+    res.status(500).send("Error Occured");
+})
 
 app.listen(3000, () => {
   console.log("Server is listening to port 3000....");
