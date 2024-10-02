@@ -1,14 +1,28 @@
 const express = require("express");
 const app = express();
-app.use("/", (req, res) => {
-  res.send("Hello!");
+// app.use("/", (req, res) => {
+//   res.send("Hello!");
+// });
+// app.use("/hello", (req, res) => {
+//   res.send("Hello from the hello!");
+// });
+// app.use("/test", (req, res) => {
+//   res.send("Hello from the test server!");
+// });
+app.get("/user", (req, res) => {
+  res.send({firstname:"sai",lastname:"bhanu"});
 });
-app.use("/hello", (req, res) => {
-  res.send("Hello from the hello!");
+app.post("/user", (req, res) => {
+  res.send("data added to db successfully");
 });
-app.use("/test", (req, res) => {
-  res.send("Hello from the test server!");
+app.patch("/user",(req,res)=>
+{
+  res.send("data updated sucessfully");
+})
+app.delete("/user", (req, res) => {
+  res.send("data deleted from db successfully");
 });
+
 
 
 app.listen(3000, () => {
