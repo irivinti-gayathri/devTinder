@@ -6,10 +6,14 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const user = new User(req.body);
   try {
+    if(user.skills.length>10)
+    {
+      throw new Error("Skills cannot be greater than 10");
+    }
     await user.save();
     res.send("User added sucessfully");
   } catch (err) {
-    res.status(400).send("Cannot add User" + err.message);
+    res.status(400).send("Cannot add User => " + err.message);
   }
 });
 app.get("/userbyemail", async (req, res) => {
@@ -22,7 +26,7 @@ app.get("/userbyemail", async (req, res) => {
       res.send(user);
     }
   } catch (err) {
-    res.send("something went wrong ");
+    res.send("something went wrong => "+err.message);
   }
 });
 app.get("/userbyid", async (req, res) => {
@@ -68,12 +72,24 @@ app.delete("/userbyId",async(req,res)=>
     res.send("Something went wrong");
   }
 });
-app.patch("/user",async(req,res)=>
+app.patch("/user/:_id",async(req,res)=>
   {
-    const _id=req.body._id;
+    const _id=req.params._id;
     const data=req.body;
     try{
-      const updateduser=await User.findByIdAndUpdate({_id},data,{runValidators: true});
+      const Allowedtoupdate=["lastname","age","skills","about"];
+      const isAllowedtoupdate=Object.keys(data).every((k)=>Allowedtoupdate.includes(k)
+      )
+      if(!isAllowedtoupdate)
+      {
+        throw new Error("Updation is not valid");
+      }
+      if(data.skills.length>10)
+        {
+          throw new Error("Skills cannot be greater than 10");
+        }
+
+      const updateduser=await User.findByIdAndUpdate({_id},data,{returnDocument:"after",runValidators: true});
       if(!updateduser)
       {
         res.status(404).send("User not found");
@@ -84,14 +100,29 @@ app.patch("/user",async(req,res)=>
     }
     catch(err)
     {
-      res.send("Something went wrong");
+      res.send("Something went wrong => "+err.message);
     }
   });
-  app.patch("/user",async(req,res)=>
+  app.patch("/userbyemail",async(req,res)=>
     {
       const email=req.body.email;
       const data=req.body;
       try{
+        
+        const Allowedtoupdate=["lastname","age","skills","about"];
+      const isAllowedtoupdate=Object.keys(data).every((k)=>
+      {
+        Allowedtoupdate.includes(k);
+      }
+      )
+      if(!isAllowedtoupdate)
+      {
+        throw new Error("Updation is not valid");
+      }
+      if(data.skills.length>10)
+        {
+          throw new Error("Skills cannot be greater than 10");
+        }
         const updateduser=await User.findOneAndUpdate({email},data,{runValidators: true});
         if(!updateduser)
         {
@@ -103,7 +134,7 @@ app.patch("/user",async(req,res)=>
       }
       catch(err)
       {
-        res.send("Something went wrong");
+        res.send("Something went wrong => "+err.message);
       }
     });
 connectDB()
