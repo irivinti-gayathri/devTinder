@@ -50,24 +50,62 @@ app.use(express.json());
 //     res.send("something went wrong ");
 //   }
 // });
-app.delete("/userbyId",async(req,res)=>
-{
-  const _id=req.body._id;
-  try{
-    const deleteduser=await User.findByIdAndDelete(_id);
-    if(!deleteduser)
-    {
-      res.status(404).send("User not found");
-    }
-    else{
-      res.send("Deleted user sucessfully");
-    }
-  }
-  catch(err)
+// app.delete("/userbyId",async(req,res)=>
+// {
+//   const _id=req.body._id;
+//   try{
+//     const deleteduser=await User.findByIdAndDelete(_id);
+//     if(!deleteduser)
+//     {
+//       res.status(404).send("User not found");
+//     }
+//     else{
+//       res.send("Deleted user sucessfully");
+//     }
+//   }
+//   catch(err)
+//   {
+//     res.send("Something went wrong");
+//   }
+//});
+app.patch("/user",async(req,res)=>
   {
-    res.send("Something went wrong");
-  }
-});
+    const _id=req.body._id;
+    const data=req.body;
+    try{
+      const updateduser=await User.findByIdAndUpdate({_id},data);
+      if(!updateduser)
+      {
+        res.status(404).send("User not found");
+      }
+      else{
+        res.send("Updated user data sucessfully");
+      }
+    }
+    catch(err)
+    {
+      res.send("Something went wrong");
+    }
+  });
+  app.patch("/user",async(req,res)=>
+    {
+      const email=req.body.email;
+      const data=req.body;
+      try{
+        const updateduser=await User.findOneAndUpdate({email},data);
+        if(!updateduser)
+        {
+          res.status(404).send("User not found");
+        }
+        else{
+          res.send("Updated user data sucessfully");
+        }
+      }
+      catch(err)
+      {
+        res.send("Something went wrong");
+      }
+    });
 connectDB()
   .then((req, res) => {
     console.log("Connected to DB sucessfully");
