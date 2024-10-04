@@ -1,21 +1,51 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const { User } = require("./models/user");
+const bcrypt=require("bcrypt");
+const {signupvalidator}=require("./utils/validation");
 const app = express();
 app.use(express.json());
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-  try {
-    if(user.skills.length>10)
-    {
-      throw new Error("Skills cannot be greater than 10");
-    }
+
+  try{
+  signupvalidator(req);
+  const{firstName,lastName,email,password}=req.body;
+  const passwordhash=await bcrypt.hash(password,5);
+  const user = new User({
+    firstName,
+    lastName,
+    email,
+    password:passwordhash
+  });
     await user.save();
     res.send("User added sucessfully");
   } catch (err) {
     res.status(400).send("Cannot add User => " + err.message);
   }
 });
+app.post("/login",async(req,res)=>
+{
+    try{
+      const {email,password}=req.body;
+      const user=await User.findOne({email});
+      if(!user)
+      {
+        throw new Error("Invalid Credentials");
+      }
+      const ispasswordvalidate= await bcrypt.compare(password,user.password);
+      if(ispasswordvalidate)
+      {
+        res.send("user logined succesfully");
+      }
+      else{
+        throw new Error("Invalid Credentials");
+      }
+
+    }
+    catch (err) {
+      res.status(400).send("Something went wrong => " + err.message);
+    }
+})
 app.get("/userbyemail", async (req, res) => {
   const email = req.body.email;
   try {
